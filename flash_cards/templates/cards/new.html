@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Nouvelle carte
+{% endblock title %}
+{% block content %}
+  <form id="create_card_form_id" method="post">
+    {% csrf_token %}
+    {{ form_new_card.as_p }}
+    <button id="create_button_id" type="submit" class="btn btn-primary">Créer la carte</button>
+  </form>
+{% endblock content %}

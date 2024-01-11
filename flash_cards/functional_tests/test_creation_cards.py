@@ -1,46 +1,50 @@
-import time
-
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium import webdriver
+from functional_test import FunctionalTest
 from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.options import Options as Firefox_Options
-from selenium.webdriver.firefox.service import Service
 
 
-class TestCreationCards(StaticLiveServerTestCase):
-    def setUp(self):
-        firefox_options = Firefox_Options()
-
-        driverService = Service("/snap/bin/geckodriver")
-        self.browser = webdriver.Firefox(service=driverService, options=firefox_options)
-
-    def tearDown(self) -> None:
-        self.browser.quit()
-
+class TestCreationCards(FunctionalTest):
     def test_user_create_basic_card(self):
         # the user arrive on the website
         self.browser.get(self.live_server_url)
         self.assertTrue(self.wait_page("Maison"))
 
         # he clicks the create cards button
-        self.browser.find_element(By.ID, "create_button_id").click()
+        self.browser.find_element(By.ID, "create_page_button_id").click()
         self.assertTrue(self.wait_page("Nouvelle carte"))
 
-        # The gets a from page
-        self.fail("finish the test (tocard)")
+        # he gets a form the a card creation
+        form = self.browser.find_element(By.ID, "create_card_form_id")
+        self.assertIsNotNone(form)
 
-        # he fills the from with <quetion><answer>
+        # he fills the form with <question><answer>
+        form.find_element(By.ID, "question_field_id").send_keys("Quelle est la capitale de la France ?")
+        form.find_element(By.ID, "answer_field_id").send_keys("Paris")
+
         # he clicks on the "create" button
-        # he's redirected to the home page
+        self.browser.find_element(By.ID, "create_button_id").click()
 
-    def wait_page(self, page_title: str):
-        timeout = 0
+        # he's redirected to the home page where a message says it worked
+        self.assertTrue(self.wait_page("Maison"))
+        self.assertTrue(self.text_in_body("Card succesfully created."))
 
-        while page_title != self.browser.title:
-            time.sleep(0.5)
-            timeout += 1
+    def test_user_fail_to_create_basic_card(self):
+        # the user arrive on the website
+        self.browser.get(self.live_server_url)
+        self.assertTrue(self.wait_page("Maison"))
 
-            if timeout > 10:
-                return False
+        # he clicks the create cards button
+        self.browser.find_element(By.ID, "create_page_button_id").click()
+        self.assertTrue(self.wait_page("Nouvelle carte"))
 
-        return True
+        # he gets a form the a card creation
+        form = self.browser.find_element(By.ID, "create_card_form_id")
+        self.assertIsNotNone(form)
+
+        # he fills the form with <question> but an empty answer
+        form.find_element(By.ID, "question_field_id").send_keys("Quelle est la capitale de la France ?")
+
+        # he clicks on the "create" button
+        self.browser.find_element(By.ID, "create_button_id").click()
+
+        # he stays on the page and get an error message
+        self.assertTrue(self.wait_page("Nouvelle carte"))

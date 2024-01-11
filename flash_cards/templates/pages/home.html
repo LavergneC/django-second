@@ -4,5 +4,7 @@
   Maison
 {% endblock title %}
 {% block content %}
-  <button id="create_button_id" class="btn btn-primary">Créer une carte</button>
+  <a href="{% url 'cards:new' %}">
+    <button id="create_page_button_id" class="btn btn-primary">Créer une carte</button>
+  </a>
 {% endblock content %}
