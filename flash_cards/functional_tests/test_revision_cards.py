@@ -2,8 +2,17 @@ from functional_test import FunctionalTest
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
+from flash_cards.cards.models import Card
+
 
 class TestCardsRevision(FunctionalTest):
+    def setUp(self):
+        super().setUp()
+        Card.objects.create(
+            question="Quelle est la capitale de la France ?",
+            answer="Paris",
+        )
+
     def test_user_do_a_revision(self):
         # the user arrive on the website
         self.browser.get(self.live_server_url)
@@ -22,7 +31,7 @@ class TestCardsRevision(FunctionalTest):
         self.assertTrue(self.text_in_body("Quelle est la capitale de la France ?"))
 
         # He answer correctly
-        form.find_element(By.ID, "answer_field_id").send_keys("Paris")
+        form.find_element(By.ID, "id_answer").send_keys("Paris")
         # he clicks on the "check answer" button
         self.browser.find_element(By.ID, "check_answer_id").click()
 

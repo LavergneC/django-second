@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Révision
+{% endblock title %}
+{% block content %}
+  <h4>{{ question }}</h4>
+  <form id="revision_form_id" method="post">
+    {% csrf_token %}
+    {{ form_revision.as_p }}
+    <button id="check_answer_id" type="submit" class="btn btn-primary">Vérifier</button>
+  </form>
+{% endblock content %}
