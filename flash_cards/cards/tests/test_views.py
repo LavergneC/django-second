@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.http import HttpResponse
 from django.test import TestCase
 
 from flash_cards.cards.models import Card
@@ -37,9 +38,18 @@ class TestNewCardView(TestCase):
 class TestRevisionView(TestCase):
     def setUp(self) -> None:
         self.url = "/cards/revision"
-        Card.objects.create(
+        self.card = Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
+        )
+
+    def _post(self, answer: str) -> HttpResponse:
+        return self.client.post(
+            self.url,
+            {
+                "answer": answer,
+                "question_id": self.card.id,
+            },
         )
 
     def test_access_new_revision_view(self):
@@ -76,17 +86,23 @@ class TestRevisionView(TestCase):
         )
 
     def test_post_correct_answer_and_display_success_message(self):
-        post_response = self.client.post(
-            self.url,
-            {"answer": "Paris"},
-        )
+        post_response = self._post(answer="Paris")
         messages_received = [m.message for m in messages.get_messages(post_response.wsgi_request)]
-        self.assertTrue(messages_received, ["Congratulation !"])
+        self.assertEqual(messages_received, ["Congratulation !"])
 
     def test_post_wrong_answer_and_display_error_message(self):
-        post_response = self.client.post(
-            self.url,
-            {"answer": "Rome"},
-        )
+        post_response = self._post(answer="Rome")
         messages_received = [m.message for m in messages.get_messages(post_response.wsgi_request)]
-        self.assertTrue(messages_received, ["You will do better next time!"])
+        self.assertEqual(messages_received, ["You will do better next time!"])
+
+    def test_post_answer_render_correct_template(self):
+        post_response = self._post(answer="Rome")
+        self.assertTemplateUsed(post_response, "cards/revision_correction.html")
+
+    def test_correction_display_correct_card(self):
+        post_response = self._post(answer="Rome")
+        self.assertIn(self.card.question, post_response.content.decode())
+        self.assertIn(self.card.answer, post_response.content.decode())
+        
+    def test_display_new_question_after_click_on_next_button(self):
+        

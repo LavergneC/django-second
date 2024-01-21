@@ -27,7 +27,18 @@ def new_card_view(request: HttpRequest) -> HttpResponse:
 
 def revision_view(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
-        messages.success(request, "Congratulation !")
+        question_id = request.POST["question_id"]
+        card = Card.objects.get(id=question_id)
+
+        if card.answer == request.POST["answer"]:
+            messages.success(request, "Congratulation !")
+        else:
+            messages.warning(request, "You will do better next time!")
+        return render(
+            request,
+            "cards/revision_correction.html",
+            context={"card": card},
+        )
 
     if not len(Card.objects.all()):
         messages.error(request, "Error, Could not find any cards")
@@ -40,6 +51,7 @@ def revision_view(request: HttpRequest) -> HttpResponse:
         "cards/revision.html",
         context={
             "form_revision": RevisionForm(),
+            "question_id": first_card.id,
             "question": first_card.question,
         },
     )

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Révision - correction
+{% endblock title %}
+{% block content %}
+<h4 id ="question_text_id">{{ card.question }}</h4>
+<h4 id ="answer_text_id">{{ card.answer }}</h4>
+
+<button id="next_revision_button_id" type="submit" name="last_card", value={{card}} class="btn btn-primary">Carte suivante</button>
+ 
+{% endblock content %}

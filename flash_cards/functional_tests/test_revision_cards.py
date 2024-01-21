@@ -1,8 +1,8 @@
-from functional_test import FunctionalTest
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from flash_cards.cards.models import Card
+from flash_cards.functional_tests.functional_test import FunctionalTest
 
 
 class TestCardsRevision(FunctionalTest):
@@ -36,8 +36,8 @@ class TestCardsRevision(FunctionalTest):
         self.browser.find_element(By.ID, "check_answer_id").click()
 
         # He gets the correct answer and rewarding message
-        question = form.find_element(By.ID, "question_text_id").text
-        answer = form.find_element(By.ID, "answer_text_id").text
+        question = self.browser.find_element(By.ID, "question_text_id").text
+        answer = self.browser.find_element(By.ID, "answer_text_id").text
 
         self.assertEqual(question, "Quelle est la capitale de la France ?")
         self.assertEqual(answer, "Paris")
