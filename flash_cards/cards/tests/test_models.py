@@ -13,3 +13,4 @@ class TestCardModel(TestCase):
         self.assertEqual(Card.objects.count(), 1)
         self.assertEqual(Card.objects.first().question, "Quelle est la capitale de la France ?")
         self.assertEqual(Card.objects.first().answer, "Paris")
+        self.assertFalse(Card.objects.first().revised)

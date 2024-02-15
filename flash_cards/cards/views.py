@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
@@ -26,32 +26,47 @@ def new_card_view(request: HttpRequest) -> HttpResponse:
 
 
 def revision_view(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST":
-        question_id = request.POST["question_id"]
-        card = Card.objects.get(id=question_id)
+    card_to_revise = Card.objects.filter(revised=False).first()
 
-        if card.answer == request.POST["answer"]:
-            messages.success(request, "Congratulation !")
+    if not card_to_revise:
+        if not len(Card.objects.all()):
+            messages.error(request, "Error, Could not find any cards")
         else:
-            messages.warning(request, "You will do better next time!")
-        return render(
-            request,
-            "cards/revision_correction.html",
-            context={"card": card},
-        )
-
-    if not len(Card.objects.all()):
-        messages.error(request, "Error, Could not find any cards")
+            messages.error(request, "All cards are already revised")
         return redirect(reverse("home"))
 
-    first_card = Card.objects.first()
+    return redirect(
+        reverse(
+            "cards:revision_card",
+            kwargs={"pk": card_to_revise.pk},
+        )
+    )
+
+
+def revision_card_view(request: HttpRequest, pk):
+    return render(
+        request,
+        "cards/revision_card.html",
+        context={
+            "card": Card.objects.get(id=pk),
+            "form_revision": RevisionForm(),
+        },
+    )
+
+
+def correction_card_view(request: HttpRequest, pk):
+    if request.method == "GET":
+        return HttpResponseNotFound()
+
+    card = Card.objects.get(id=pk)
+
+    if card.answer == request.POST["answer"]:
+        messages.success(request, "Congratulation !")
+    else:
+        messages.error(request, "You will do better next time!")
 
     return render(
         request,
-        "cards/revision.html",
-        context={
-            "form_revision": RevisionForm(),
-            "question_id": first_card.id,
-            "question": first_card.question,
-        },
+        "cards/revision_correction.html",
+        context={"card": card},
     )
