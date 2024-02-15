@@ -65,6 +65,9 @@ def correction_card_view(request: HttpRequest, pk):
     else:
         messages.error(request, "You will do better next time!")
 
+    card.revised = True
+    card.save()
+
     return render(
         request,
         "cards/revision_correction.html",

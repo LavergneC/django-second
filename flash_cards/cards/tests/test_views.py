@@ -178,8 +178,9 @@ class TestRevisionCardCorrection(TestCase):
         self.assertIn(self.card.question, self.response.content.decode())
         self.assertIn(self.card.answer, self.response.content.decode())
 
-    def test_display_new_question_after_click_on_next_button(self):
-        pass
+    def test_correction_set_revised_to_true(self):
+        self.card.refresh_from_db()
+        self.assertTrue(self.card.revised)
 
     def _post(self, answer: str) -> HttpResponse:
         response = self.client.post(

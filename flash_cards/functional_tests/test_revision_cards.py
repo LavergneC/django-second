@@ -12,6 +12,10 @@ class TestCardsRevision(FunctionalTest):
             question="Quelle est la capitale de la France ?",
             answer="Paris",
         )
+        Card.objects.create(
+            question="Quelle est la capitale de l'Italie ?",
+            answer="Rome",
+        )
 
     def test_user_do_a_revision(self):
         # the user arrive on the website
@@ -55,7 +59,7 @@ class TestCardsRevision(FunctionalTest):
         self.assertTrue(self.text_in_body("Quelle est la capitale de l'Italie ?"))
 
         # He answer uncorrectly
-        form.find_element(By.ID, "answer_field_id").send_keys("Paris")
+        form.find_element(By.ID, "id_answer").send_keys("Paris")
         # he clicks on the "check answer" button
         self.browser.find_element(By.ID, "check_answer_id").click()
 
