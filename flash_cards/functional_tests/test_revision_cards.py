@@ -63,9 +63,11 @@ class TestCardsRevision(FunctionalTest):
         # he clicks on the "check answer" button
         self.browser.find_element(By.ID, "check_answer_id").click()
 
+        self.assertTrue(self.wait_page("Révision - correction"))
+
         # He gets the correct answer and supporting message
-        question = form.find_element(By.ID, "question_text_id").text
-        answer = form.find_element(By.ID, "answer_text_id").text
+        question = self.browser.find_element(By.ID, "question_text_id").text
+        answer = self.browser.find_element(By.ID, "answer_text_id").text
 
         self.assertEqual(question, "Quelle est la capitale de l'Italie ?")
         self.assertEqual(answer, "Rome")
