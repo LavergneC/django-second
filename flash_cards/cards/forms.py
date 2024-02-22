@@ -6,7 +6,10 @@ from flash_cards.cards.models import Card
 class NewCardForm(forms.models.ModelForm):
     class Meta:
         model = Card
-        fields = "__all__"
+        fields = (
+            "question",
+            "answer",
+        )
 
         widgets = {
             "question": forms.TextInput(attrs={"id": "question_field_id"}),
