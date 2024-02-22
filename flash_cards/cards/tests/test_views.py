@@ -152,6 +152,11 @@ class TestRevisionCardCorrection(TestCase):
             question="Quelle est la capitale de la France ?",
             answer="Paris",
         )
+        self.card2 = Card.objects.create(
+            question="Quelle est la capitale de la France ?",
+            answer="Paris",
+        )
+
         self.url = reverse("cards:correction_card", kwargs={"pk": self.card.pk})
         self.response = self._post("Paris")
 
@@ -181,6 +186,24 @@ class TestRevisionCardCorrection(TestCase):
     def test_correction_set_revised_to_true(self):
         self.card.refresh_from_db()
         self.assertTrue(self.card.revised)
+
+    def test_no_more_cards_in_context(self):
+        self.assertTrue(self.response.context["have_next_card"])
+
+        response2 = self.client.post(
+            path=reverse("cards:correction_card", kwargs={"pk": self.card2.pk}),
+            data={"answer": "Paris"},
+        )
+
+        self.assertFalse(response2.context["have_next_card"])
+
+    def test_message_when_no_more_cards(self):
+        response2 = self.client.post(
+            path=reverse("cards:correction_card", kwargs={"pk": self.card2.pk}),
+            data={"answer": "Paris"},
+        )
+        messages_received = [m.message for m in messages.get_messages(response2.wsgi_request)]
+        self.assertIn("Révision terminée !", messages_received)
 
     def _post(self, answer: str) -> HttpResponse:
         response = self.client.post(

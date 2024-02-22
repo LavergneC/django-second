@@ -58,9 +58,8 @@ class TestCardsRevision(FunctionalTest):
 
         self.assertTrue(self.text_in_body("Quelle est la capitale de l'Italie ?"))
 
-        # He answer uncorrectly
+        # He answer uncorrectly and he clicks on the "check answer" button
         form.find_element(By.ID, "id_answer").send_keys("Paris")
-        # he clicks on the "check answer" button
         self.browser.find_element(By.ID, "check_answer_id").click()
 
         self.assertTrue(self.wait_page("Révision - correction"))
@@ -72,6 +71,16 @@ class TestCardsRevision(FunctionalTest):
         self.assertEqual(question, "Quelle est la capitale de l'Italie ?")
         self.assertEqual(answer, "Rome")
         self.assertTrue(self.text_in_body("You will do better next time!"))
+
+        # Since he revised all cards, the next button is not available
+        # and a message tells him
+        try:
+            self.browser.find_element(By.ID, "next_revision_button_id").click()
+            self.fail("Should NOT find next button")
+        except NoSuchElementException:
+            pass
+
+        self.assertTrue(self.text_in_body("Révision terminée !"))
 
         # he clicks on the "Finish revision" button, he's redirected to the main page
         self.browser.find_element(By.ID, "finish_revision_button_id").click()

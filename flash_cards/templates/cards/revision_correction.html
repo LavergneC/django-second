@@ -6,7 +6,12 @@
 {% block content %}
   <h4 id="question_text_id">{{ card.question }}</h4>
   <h4 id="answer_text_id">{{ card.answer }}</h4>
-  <a href="{% url 'cards:revision' %}">
-    <button id="next_revision_button_id" class="btn btn-primary">Carte suivante</button>
+  {% if have_next_card %}
+    <a href="{% url 'cards:revision' %}">
+      <button id="next_revision_button_id" class="btn btn-primary">Carte suivante</button>
+    </a>
+  {% endif %}
+  <a href="{% url 'home' %}">
+    <button id="finish_revision_button_id" class="btn btn-primary">Fin de révision</button>
   </a>
 {% endblock content %}

@@ -68,8 +68,16 @@ def correction_card_view(request: HttpRequest, pk):
     card.revised = True
     card.save()
 
+    have_next_card = Card.objects.filter(revised=False).count()
+
+    if not have_next_card:
+        messages.success(request, "Révision terminée !")
+
     return render(
         request,
         "cards/revision_correction.html",
-        context={"card": card},
+        context={
+            "card": card,
+            "have_next_card": have_next_card,
+        },
     )
