@@ -12,6 +12,7 @@ class TestCardsRevision(FunctionalTest):
         super().setUp()
 
         tomorrow = date.today() + timedelta(days=1)
+        yesterday = date.today() + timedelta(days=-1)
 
         Card.objects.create(
             question="Quelle est la capitale de la France ?",
@@ -19,14 +20,14 @@ class TestCardsRevision(FunctionalTest):
             revision_date=tomorrow,
         )
         Card.objects.create(
-            question="Qui fût le 9ème César ?",
-            answer="Vitellius",
-            revision_date=date.today(),
-        )
-        Card.objects.create(
             question="Quelle est la capitale de l'Italie ?",
             answer="Rome",
             revision_date=date.today(),
+        )
+        Card.objects.create(
+            question="Qui fût le 9ème César ?",
+            answer="Vitellius",
+            revision_date=yesterday,
         )
         Card.objects.create(
             question="Qui fût le premier César ?",
@@ -43,7 +44,7 @@ class TestCardsRevision(FunctionalTest):
         self.browser.find_element(By.ID, "revision_button_id").click()
         self.assertTrue(self.wait_page("Révision"))
 
-        # He's prompted with a question from a created card that should be revised today
+        # He's prompted with a question from a card that should be revised in priority
         try:
             form = self.browser.find_element(By.ID, "revision_form_id")
         except NoSuchElementException:
