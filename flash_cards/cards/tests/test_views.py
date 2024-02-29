@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from django.contrib import messages
 from django.http import HttpResponse
 from django.test import TestCase
@@ -46,8 +48,8 @@ class TestRevisionView(TestCase):
             answer="Paris",
         )
         self.second_card = Card.objects.create(
-            question="Quelle est la capitale de la France ?",
-            answer="Paris",
+            question="Quelle est la capitale des Tuvalu ?",
+            answer="Funafuti",
         )
 
     def test_access_new_revision_view_no_cards(self):
@@ -82,6 +84,16 @@ class TestRevisionView(TestCase):
 
         response = self.client.get(self.url)
 
+        self.assertRedirects(
+            response=response,
+            expected_url=reverse("cards:revision_card", kwargs={"pk": self.second_card.pk}),
+        )
+
+    def test_get_today_card_when_first_is_for_later(self):
+        self.first_card.revision_date = date.today() + timedelta(days=10)
+        self.first_card.save()
+
+        response = self.client.get(self.url)
         self.assertRedirects(
             response=response,
             expected_url=reverse("cards:revision_card", kwargs={"pk": self.second_card.pk}),
@@ -155,6 +167,11 @@ class TestRevisionCardCorrection(TestCase):
         self.card2 = Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
+        )
+        self.card3 = Card.objects.create(
+            question="Quelle est la capitale de la France ?",
+            answer="Paris",
+            revision_date=date.today() + timedelta(days=1),
         )
 
         self.url = reverse("cards:correction_card", kwargs={"pk": self.card.pk})
