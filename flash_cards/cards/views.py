@@ -1,4 +1,5 @@
 from datetime import date
+from multiprocessing.managers import BaseManager
 
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
@@ -7,6 +8,13 @@ from django.urls import reverse
 
 from flash_cards.cards.forms import NewCardForm, RevisionForm
 from flash_cards.cards.models import Card
+
+
+def _get_revisable_cards() -> BaseManager:
+    return Card.objects.filter(
+        revised=False,
+        revision_date__lte=date.today(),  # Less than or equal
+    )
 
 
 def new_card_view(request: HttpRequest) -> HttpResponse:
@@ -28,10 +36,9 @@ def new_card_view(request: HttpRequest) -> HttpResponse:
 
 
 def revision_view(request: HttpRequest) -> HttpResponse:
-    avaliable_cards = Card.objects.filter(revised=False).filter(revision_date=date.today())
-    card_to_revise = avaliable_cards.first()
+    cards_to_revise = _get_revisable_cards()
 
-    if not card_to_revise:
+    if not len(cards_to_revise):
         if not len(Card.objects.all()):
             messages.error(request, "Error, Could not find any cards")
         else:
@@ -41,7 +48,7 @@ def revision_view(request: HttpRequest) -> HttpResponse:
     return redirect(
         reverse(
             "cards:revision_card",
-            kwargs={"pk": card_to_revise.pk},
+            kwargs={"pk": cards_to_revise.earliest("revision_date").pk},
         )
     )
 
@@ -71,7 +78,7 @@ def correction_card_view(request: HttpRequest, pk):
     card.revised = True
     card.save()
 
-    have_next_card = Card.objects.filter(revised=False).filter(revision_date=date.today()).count()
+    have_next_card = _get_revisable_cards().count()
 
     if not have_next_card:
         messages.success(request, "Révision terminée !")

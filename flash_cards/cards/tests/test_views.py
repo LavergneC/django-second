@@ -99,6 +99,29 @@ class TestRevisionView(TestCase):
             expected_url=reverse("cards:revision_card", kwargs={"pk": self.second_card.pk}),
         )
 
+    def test_get_backdated_card_when_first_is_for_today(self):
+        self.second_card.revision_date = date.today() + timedelta(days=-10)
+        self.second_card.save()
+
+        response = self.client.get(self.url)
+        self.assertRedirects(
+            response=response,
+            expected_url=reverse("cards:revision_card", kwargs={"pk": self.second_card.pk}),
+        )
+
+    def test_get_the_most_backdated_card_when_all_backdated(self):
+        self.first_card.revision_date = date.today() + timedelta(days=-5)
+        self.second_card.revision_date = date.today() + timedelta(days=-10)
+
+        self.first_card.save()
+        self.second_card.save()
+
+        response = self.client.get(self.url)
+        self.assertRedirects(
+            response=response,
+            expected_url=reverse("cards:revision_card", kwargs={"pk": self.second_card.pk}),
+        )
+
     def test_cards_fully_revised_redirect_home_and_display_message(self):
         self.first_card.revised = True
         self.first_card.save()
@@ -163,10 +186,12 @@ class TestRevisionCardCorrection(TestCase):
         self.card = Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
+            revision_date=date.today(),
         )
         self.card2 = Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
+            revision_date=date.today(),
         )
         self.card3 = Card.objects.create(
             question="Quelle est la capitale de la France ?",
