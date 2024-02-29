@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
@@ -26,7 +28,8 @@ def new_card_view(request: HttpRequest) -> HttpResponse:
 
 
 def revision_view(request: HttpRequest) -> HttpResponse:
-    card_to_revise = Card.objects.filter(revised=False).first()
+    avaliable_cards = Card.objects.filter(revised=False).filter(revision_date=date.today())
+    card_to_revise = avaliable_cards.first()
 
     if not card_to_revise:
         if not len(Card.objects.all()):
@@ -68,7 +71,7 @@ def correction_card_view(request: HttpRequest, pk):
     card.revised = True
     card.save()
 
-    have_next_card = Card.objects.filter(revised=False).count()
+    have_next_card = Card.objects.filter(revised=False).filter(revision_date=date.today()).count()
 
     if not have_next_card:
         messages.success(request, "Révision terminée !")

@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.test import TestCase
 
 from flash_cards.cards.models import Card
@@ -14,3 +16,4 @@ class TestCardModel(TestCase):
         self.assertEqual(Card.objects.first().question, "Quelle est la capitale de la France ?")
         self.assertEqual(Card.objects.first().answer, "Paris")
         self.assertFalse(Card.objects.first().revised)
+        self.assertEqual(Card.objects.first().revision_date, date.today())
