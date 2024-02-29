@@ -1,5 +1,6 @@
-from functional_test import FunctionalTest
 from selenium.webdriver.common.by import By
+
+from flash_cards.functional_tests.functional_test import FunctionalTest
 
 
 class TestCreationCards(FunctionalTest):
