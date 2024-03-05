@@ -193,7 +193,7 @@ class TestRevisionCardCorrection(TestCase):
             answer="Paris",
             revision_date=date.today(),
         )
-        self.card3 = Card.objects.create(
+        Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
             revision_date=date.today() + timedelta(days=1),
@@ -229,7 +229,7 @@ class TestRevisionCardCorrection(TestCase):
         self.card.refresh_from_db()
         self.assertTrue(self.card.revised)
 
-    def test_no_more_cards_in_context(self):
+    def test_no_more_cards_in_context_when_revision_finished(self):
         self.assertTrue(self.response.context["have_next_card"])
 
         response2 = self.client.post(
@@ -239,7 +239,7 @@ class TestRevisionCardCorrection(TestCase):
 
         self.assertFalse(response2.context["have_next_card"])
 
-    def test_message_when_no_more_cards(self):
+    def test_message_when_revision_finished(self):
         response2 = self.client.post(
             path=reverse("cards:correction_card", kwargs={"pk": self.card2.pk}),
             data={"answer": "Paris"},
