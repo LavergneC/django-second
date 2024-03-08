@@ -29,7 +29,7 @@ class TestNewCardView(TestCase):
         self.assertEqual(Card.objects.count(), 1)
         self.assertEqual(Card.objects.first().question, "Quelle est la capitale de la France ?")
         self.assertEqual(Card.objects.first().answer, "Paris")
-        self.assertFalse(Card.objects.first().revised)
+        self.assertEqual(Card.objects.first().revision_date, date.today())
 
     def test_cant_create_card_because_form_is_not_valid(self):
         self.post_response = self.client.post(
@@ -78,17 +78,6 @@ class TestRevisionView(TestCase):
             expected_url=reverse("cards:revision_card", kwargs={"pk": self.first_card.pk}),
         )
 
-    def test_get_not_revised_card_when_first_is_revised(self):
-        self.first_card.revised = True
-        self.first_card.save()
-
-        response = self.client.get(self.url)
-
-        self.assertRedirects(
-            response=response,
-            expected_url=reverse("cards:revision_card", kwargs={"pk": self.second_card.pk}),
-        )
-
     def test_get_today_card_when_first_is_for_later(self):
         self.first_card.revision_date = date.today() + timedelta(days=10)
         self.first_card.save()
@@ -123,9 +112,9 @@ class TestRevisionView(TestCase):
         )
 
     def test_cards_fully_revised_redirect_home_and_display_message(self):
-        self.first_card.revised = True
+        self.first_card.revision_date = date.today() + timedelta(days=1)
         self.first_card.save()
-        self.second_card.revised = True
+        self.second_card.revision_date = date.today() + timedelta(days=1)
         self.second_card.save()
 
         response = self.client.get(self.url)
@@ -196,7 +185,7 @@ class TestRevisionCardCorrection(TestCase):
         Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
-            revision_date=date.today() + timedelta(days=1),
+            revision_date=date.today() + timedelta(days=10),
         )
 
         self.url = reverse("cards:correction_card", kwargs={"pk": self.card.pk})
@@ -225,10 +214,6 @@ class TestRevisionCardCorrection(TestCase):
         self.assertIn(self.card.question, self.response.content.decode())
         self.assertIn(self.card.answer, self.response.content.decode())
 
-    def test_correction_set_revised_to_true(self):
-        self.card.refresh_from_db()
-        self.assertTrue(self.card.revised)
-
     def test_no_more_cards_in_context_when_revision_finished(self):
         self.assertTrue(self.response.context["have_next_card"])
 
@@ -246,6 +231,26 @@ class TestRevisionCardCorrection(TestCase):
         )
         messages_received = [m.message for m in messages.get_messages(response2.wsgi_request)]
         self.assertIn("Révision terminée !", messages_received)
+
+    def test_right_answer_updates_card_revision_date_and_time_delta(self):
+        # succeded card new revison date:
+        # timedelta = timedelta * 2
+        # revision_date = today_date + (new)timedelta
+        card = self.response.context["card"]
+        self.assertEqual(card.revision_time_delta, timedelta(days=2))
+        self.assertEqual(card.revision_date, date.today() + card.revision_time_delta)
+
+    def test_wrong_answer_updates_card_revision_date_and_time_delta(self):
+        response = self._post(answer="Rome")
+
+        card_pk = response.context["card"].pk
+        card = Card.objects.get(id=card_pk)
+
+        # Failed cards should be revised tomorrow
+        self.assertEqual(card.revision_date, date.today() + timedelta(days=1))
+
+        # Failing a card reset it's time_delta to 1 day
+        self.assertEqual(card.revision_time_delta, timedelta(days=1))
 
     def _post(self, answer: str) -> HttpResponse:
         response = self.client.post(

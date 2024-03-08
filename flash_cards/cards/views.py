@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from multiprocessing.managers import BaseManager
 
 from django.contrib import messages
@@ -12,7 +12,6 @@ from flash_cards.cards.models import Card
 
 def _get_revisable_cards() -> BaseManager:
     return Card.objects.filter(
-        revised=False,
         revision_date__lte=date.today(),  # Less than or equal
     )
 
@@ -72,10 +71,12 @@ def correction_card_view(request: HttpRequest, pk):
 
     if card.answer == request.POST["answer"]:
         messages.success(request, "Congratulation !")
+        card.revision_time_delta = card.revision_time_delta * 2
     else:
         messages.error(request, "You will do better next time!")
+        card.revision_time_delta = timedelta(days=1)
 
-    card.revised = True
+    card.revision_date = date.today() + card.revision_time_delta
     card.save()
 
     have_next_card = _get_revisable_cards().count()
