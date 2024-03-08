@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 
+from freezegun import freeze_time
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
@@ -103,3 +104,85 @@ class TestCardsRevision(FunctionalTest):
         # he clicks on the "Finish revision" button, he's redirected to the main page
         self.browser.find_element(By.ID, "finish_revision_button_id").click()
         self.assertTrue(self.wait_page("Maison"))
+
+    def setup_test_user_comes_back_next_day_to_do_a_revision(self):
+        # the user does a classic revision; already tested in test_user_do_a_revision
+        self.browser.get(self.live_server_url)
+        self.wait_page("Maison")
+        self.browser.find_element(By.ID, "revision_button_id").click()
+        self.wait_page("Révision")
+
+        # He answer correctly to the first card
+        self.assertTrue(self.text_in_body("Qui fût le 9ème César ?"))
+        form = self.browser.find_element(By.ID, "revision_form_id")
+        form.find_element(By.ID, "id_answer").send_keys("Vitellius")
+        self.browser.find_element(By.ID, "check_answer_id").click()
+
+        # He clicks the next button
+        self.browser.find_element(By.ID, "next_revision_button_id").click()
+
+        # He's prompted with a new question, he's wrong this time
+        self.assertTrue(self.text_in_body("Quelle est la capitale de l'Italie ?"))
+        form = self.browser.find_element(By.ID, "revision_form_id")
+        form.find_element(By.ID, "id_answer").send_keys("Naples")
+        self.browser.find_element(By.ID, "check_answer_id").click()
+
+    def test_user_comes_back_next_day_to_do_a_revision(self):
+        # User action on the first day
+        self.setup_test_user_comes_back_next_day_to_do_a_revision()
+
+        # Card status :
+        # |               Question                | revision date |    Reason     |
+        # |---------------------------------------|---------------|---------------|
+        # | Quelle est la capitale de la France ? | J+1           | Init value    |
+        # | Qui fût le premier César ?            | J+1           | Init value    |
+        # | Quelle est la capitale de l'Italie ?  | J+1           | Failed today  |
+        # | Qui fût le 9ème César ?               | J+2           | Success today |
+
+        # set the date as tomorrow (J+1)
+        with freeze_time(date.today() + timedelta(days=1)):
+            # the user comes next day on the website
+            self.browser.get(self.live_server_url)
+            self.assertTrue(self.wait_page("Maison"))
+
+            # He clicks the "start revision" button
+            self.browser.find_element(By.ID, "revision_button_id").click()
+            self.assertTrue(self.wait_page("Révision"))
+
+            # He's prompted with a question from a card
+            try:
+                form = self.browser.find_element(By.ID, "revision_form_id")
+            except NoSuchElementException:
+                self.fail("Could not find question_text_id")
+
+            self.assertTrue(self.text_in_body("Quelle est la capitale de la France ?"))
+
+            # He answers and clicks on the "check answer" button
+            form.find_element(By.ID, "id_answer").send_keys("Paris")
+            self.browser.find_element(By.ID, "check_answer_id").click()
+
+            # He clicks the next button
+            self.browser.find_element(By.ID, "next_revision_button_id").click()
+
+            # he's prompted with a question
+            try:
+                form = self.browser.find_element(By.ID, "revision_form_id")
+            except NoSuchElementException:
+                self.fail("Could not find question_text_id")
+
+            self.assertTrue(self.text_in_body("Qui fût le premier César ?"))
+
+            # He answers and clicks on the "check answer" button
+            form.find_element(By.ID, "id_answer").send_keys("César")
+            self.browser.find_element(By.ID, "check_answer_id").click()
+
+            # He clicks the next button
+            self.browser.find_element(By.ID, "next_revision_button_id").click()
+
+            # He's prompted with a question he failed yesterday
+            try:
+                form = self.browser.find_element(By.ID, "revision_form_id")
+            except NoSuchElementException:
+                self.fail("Could not find question_text_id")
+
+            self.assertTrue(self.text_in_body("Quelle est la capitale de l'Italie ?"))
