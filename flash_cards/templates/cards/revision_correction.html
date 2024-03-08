@@ -14,4 +14,5 @@
   <a href="{% url 'home' %}">
     <button id="finish_revision_button_id" class="btn btn-primary">Fin de révision</button>
   </a>
+  <h6>Prochaine révision: {{ card.revision_date }}</h6>
 {% endblock content %}
