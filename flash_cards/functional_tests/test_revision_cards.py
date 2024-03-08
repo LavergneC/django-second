@@ -36,6 +36,11 @@ class TestCardsRevision(FunctionalTest):
             revision_date=tomorrow,
         )
 
+    def get_date_string(self, date: date) -> str:
+        date_str = "Prochaine révision: "
+        date_str += date.strftime("%B %e, %Y")
+        return date_str.replace("  ", " ")
+
     def test_user_do_a_revision(self):
         # the user arrive on the website
         self.browser.get(self.live_server_url)
@@ -66,6 +71,10 @@ class TestCardsRevision(FunctionalTest):
         self.assertEqual(answer, "Vitellius")
         self.assertTrue(self.text_in_body("Congratulation !"))
 
+        # He also gets the next revision date
+        date_str = self.get_date_string(date.today() + timedelta(days=2))
+        self.assertTrue(self.text_in_body(date_str))
+
         # He clicks the next button
         self.browser.find_element(By.ID, "next_revision_button_id").click()
 
@@ -90,6 +99,10 @@ class TestCardsRevision(FunctionalTest):
         self.assertEqual(question, "Quelle est la capitale de l'Italie ?")
         self.assertEqual(answer, "Rome")
         self.assertTrue(self.text_in_body("You will do better next time!"))
+
+        # He also gets the next revision date
+        date_str = self.get_date_string(date.today() + timedelta(days=1))
+        self.assertTrue(self.text_in_body(date_str))
 
         # Since he revised all today's cards, the next button is not available
         # and a message tells him
