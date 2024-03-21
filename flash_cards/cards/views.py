@@ -1,5 +1,4 @@
 from datetime import date, timedelta
-from multiprocessing.managers import BaseManager
 
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
@@ -8,12 +7,7 @@ from django.urls import reverse
 
 from flash_cards.cards.forms import NewCardForm, RevisionForm
 from flash_cards.cards.models import Card
-
-
-def _get_revisable_cards() -> BaseManager:
-    return Card.objects.filter(
-        revision_date__lte=date.today(),  # Less than or equal
-    )
+from flash_cards.cards.utils import get_revisable_cards
 
 
 def new_card_view(request: HttpRequest) -> HttpResponse:
@@ -35,7 +29,7 @@ def new_card_view(request: HttpRequest) -> HttpResponse:
 
 
 def revision_view(request: HttpRequest) -> HttpResponse:
-    cards_to_revise = _get_revisable_cards()
+    cards_to_revise = get_revisable_cards()
 
     if not len(cards_to_revise):
         if not len(Card.objects.all()):
@@ -79,7 +73,7 @@ def correction_card_view(request: HttpRequest, pk):
     card.revision_date = date.today() + card.revision_time_delta
     card.save()
 
-    have_next_card = _get_revisable_cards().count()
+    have_next_card = get_revisable_cards().count()
 
     if not have_next_card:
         messages.success(request, "Révision terminée !")
