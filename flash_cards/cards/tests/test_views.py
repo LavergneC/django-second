@@ -7,10 +7,13 @@ from django.urls import reverse
 
 from flash_cards.cards.forms import RevisionForm
 from flash_cards.cards.models import Card
+from flash_cards.users.tests.factories import UserFactory
 
 
 class TestNewCardView(TestCase):
     def setUp(self) -> None:
+        user1 = UserFactory(password="coucou")
+        self.client.login(email=user1.email, password="coucou")
         self.response = self.client.get("/cards/new")
 
     def test_access_new_card_view(self):
@@ -42,14 +45,15 @@ class TestNewCardView(TestCase):
 
 class TestRevisionView(TestCase):
     def setUp(self) -> None:
+        user1 = UserFactory(password="coucou")
+        self.client.login(email=user1.email, password="coucou")
+
         self.url = "/cards/revision"
         self.first_card = Card.objects.create(
-            question="Quelle est la capitale de la France ?",
-            answer="Paris",
+            question="Quelle est la capitale de la France ?", answer="Paris", user=user1
         )
         self.second_card = Card.objects.create(
-            question="Quelle est la capitale des Tuvalu ?",
-            answer="Funafuti",
+            question="Quelle est la capitale des Tuvalu ?", answer="Funafuti", user=user1
         )
 
     def test_access_new_revision_view_no_cards(self):
@@ -126,12 +130,29 @@ class TestRevisionView(TestCase):
         messages_received = [m.message for m in messages.get_messages(response.wsgi_request)]
         self.assertTrue(messages_received, ["All cards are already revised"])
 
+    def test_get_card_for_currnet_user_only(self):
+        user2 = UserFactory()
+        self.second_card.user = user2
+        self.second_card.revision_date = date.today() - timedelta(days=1)
+        self.second_card.save()
+
+        response = self.client.get(self.url)
+
+        self.assertRedirects(
+            response=response,
+            expected_url=reverse("cards:revision_card", kwargs={"pk": self.first_card.pk}),
+        )
+
 
 class TestRevisionCardView(TestCase):
     def setUp(self):
+        user1 = UserFactory(password="coucou")
+        self.client.login(email=user1.email, password="coucou")
+
         self.card = Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
+            user=user1,
         )
         self.url = reverse("cards:revision_card", kwargs={"pk": self.card.pk})
 
@@ -172,20 +193,26 @@ class TestRevisionCardView(TestCase):
 
 class TestRevisionCardCorrection(TestCase):
     def setUp(self):
+        user1 = UserFactory(password="coucou")
+        self.client.login(email=user1.email, password="coucou")
+
         self.card = Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
             revision_date=date.today(),
+            user=user1,
         )
         self.card2 = Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
             revision_date=date.today(),
+            user=user1,
         )
         Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
             revision_date=date.today() + timedelta(days=10),
+            user=user1,
         )
 
         self.url = reverse("cards:correction_card", kwargs={"pk": self.card.pk})
