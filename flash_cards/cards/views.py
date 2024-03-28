@@ -15,7 +15,7 @@ def new_card_view(request: HttpRequest) -> HttpResponse:
         form = NewCardForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            form.save(user=request.user)
             messages.success(request, "Card succesfully created.")
             return redirect(reverse("home"))
         else:
@@ -29,7 +29,7 @@ def new_card_view(request: HttpRequest) -> HttpResponse:
 
 
 def revision_view(request: HttpRequest) -> HttpResponse:
-    cards_to_revise = get_revisable_cards()
+    cards_to_revise = get_revisable_cards(request.user)
 
     if not len(cards_to_revise):
         if not len(Card.objects.all()):
@@ -73,7 +73,7 @@ def correction_card_view(request: HttpRequest, pk):
     card.revision_date = date.today() + card.revision_time_delta
     card.save()
 
-    have_next_card = get_revisable_cards().count()
+    have_next_card = get_revisable_cards(request.user).count()
 
     if not have_next_card:
         messages.success(request, "Révision terminée !")
