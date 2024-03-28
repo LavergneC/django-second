@@ -12,14 +12,10 @@ from functional_tests.functional_test import FunctionalTest
 class TestCardsRevision(FunctionalTest):
     def setUp(self):
         super().setUp()
+        self.login()
 
         tomorrow = date.today() + timedelta(days=1)
         yesterday = date.today() + timedelta(days=-1)
-
-        user1 = UserFactory(
-            email="clement@example.fr",
-            password="plopplop",
-        )
 
         user2 = UserFactory(
             email="nico@example.fr",
@@ -36,25 +32,25 @@ class TestCardsRevision(FunctionalTest):
             question="Quelle est la capitale de la France ?",
             answer="Paris",
             revision_date=tomorrow,
-            user=user1,
+            user=self.user,
         )
         Card.objects.create(
             question="Quelle est la capitale de l'Italie ?",
             answer="Rome",
             revision_date=date.today(),
-            user=user1,
+            user=self.user,
         )
         Card.objects.create(
             question="Qui fût le 9ème César ?",
             answer="Vitellius",
             revision_date=yesterday,
-            user=user1,
+            user=self.user,
         )
         Card.objects.create(
             question="Qui fût le premier César ?",
             answer="César",
             revision_date=tomorrow,
-            user=user1,
+            user=self.user,
         )
 
     def get_date_string(self, date: date) -> str:
