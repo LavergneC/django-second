@@ -1,10 +1,13 @@
 import time
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.test import Client
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options as Firefox_Options
 from selenium.webdriver.firefox.service import Service
+
+from flash_cards.users.tests.factories import UserFactory
 
 
 class FunctionalTest(StaticLiveServerTestCase):
@@ -32,3 +35,17 @@ class FunctionalTest(StaticLiveServerTestCase):
                 return False
 
         return True
+
+    def login(self):
+        self.client = Client()
+        self.user = UserFactory(password="salut")
+        self.client.login(email=self.user.email, password="salut")
+        self.cookie = self.client.cookies["sessionid"]
+        self.browser.get(self.live_server_url + "/fake-path")
+        self.browser.add_cookie(
+            {
+                "name": "sessionid",
+                "value": self.cookie.value,
+                "path": "/",
+            }
+        )
