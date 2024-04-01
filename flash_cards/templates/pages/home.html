@@ -9,7 +9,9 @@
       <button id="create_page_button_id" class="btn btn-primary">Créer une carte</button>
     </a>
   {% endif %}
-  <a href="{% url 'cards:revision' %}">
-    <button id="revision_button_id" class="btn btn-primary">Réviser !</button>
-  </a>
+  {% if request.user.is_authenticated %}
+    <a href="{% url 'cards:revision' %}">
+      <button id="revision_button_id" class="btn btn-primary">Réviser !</button>
+    </a>
+  {% endif %}
 {% endblock content %}
