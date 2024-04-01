@@ -169,6 +169,12 @@ class TestCardsRevision(FunctionalTest):
         # | Quelle est la capitale de l'Italie ?  | J+1           | Failed today  |
         # | Qui fût le 9ème César ?               | J+2           | Success today |
 
+        question_pool = [
+            "Quelle est la capitale de la France ?",
+            "Qui fût le premier César ?",
+            "Quelle est la capitale de l'Italie ?",
+        ]
+
         # set the date as tomorrow (J+1)
         with freeze_time(date.today() + timedelta(days=1)):
             # the user comes next day on the website
@@ -185,10 +191,12 @@ class TestCardsRevision(FunctionalTest):
             except NoSuchElementException:
                 self.fail("Could not find question_text_id")
 
-            self.assertTrue(self.text_in_body("Quelle est la capitale de la France ?"))
+            success, question_match = self.one_text_in_body(question_pool)
+            self.assertTrue(success)
+            question_pool.remove(question_match)
 
             # He answers and clicks on the "check answer" button
-            form.find_element(By.ID, "id_answer").send_keys("Paris")
+            form.find_element(By.ID, "id_answer").send_keys("random")
             self.browser.find_element(By.ID, "check_answer_id").click()
 
             # He clicks the next button
@@ -200,10 +208,12 @@ class TestCardsRevision(FunctionalTest):
             except NoSuchElementException:
                 self.fail("Could not find question_text_id")
 
-            self.assertTrue(self.text_in_body("Qui fût le premier César ?"))
+            success, question_match = self.one_text_in_body(question_pool)
+            self.assertTrue(success)
+            question_pool.remove(question_match)
 
             # He answers and clicks on the "check answer" button
-            form.find_element(By.ID, "id_answer").send_keys("César")
+            form.find_element(By.ID, "id_answer").send_keys("random")
             self.browser.find_element(By.ID, "check_answer_id").click()
 
             # He clicks the next button
@@ -215,4 +225,6 @@ class TestCardsRevision(FunctionalTest):
             except NoSuchElementException:
                 self.fail("Could not find question_text_id")
 
-            self.assertTrue(self.text_in_body("Quelle est la capitale de l'Italie ?"))
+            success, question_match = self.one_text_in_body(question_pool)
+            self.assertTrue(success)
+            question_pool.remove(question_match)
