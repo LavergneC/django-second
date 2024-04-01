@@ -50,10 +50,14 @@ class TestRevisionView(TestCase):
 
         self.url = "/cards/revision"
         self.first_card = Card.objects.create(
-            question="Quelle est la capitale de la France ?", answer="Paris", user=user1
+            question="Quelle est la capitale de la France ?",
+            answer="Paris",
+            user=user1,
         )
         self.second_card = Card.objects.create(
-            question="Quelle est la capitale des Tuvalu ?", answer="Funafuti", user=user1
+            question="Quelle est la capitale des Tuvalu ?",
+            answer="Funafuti",
+            user=user1,
         )
 
     def test_access_new_revision_view_no_cards(self):
@@ -130,7 +134,7 @@ class TestRevisionView(TestCase):
         messages_received = [m.message for m in messages.get_messages(response.wsgi_request)]
         self.assertTrue(messages_received, ["All cards are already revised"])
 
-    def test_get_card_for_currnet_user_only(self):
+    def test_get_card_for_current_user_only(self):
         user2 = UserFactory()
         self.second_card.user = user2
         self.second_card.revision_date = date.today() - timedelta(days=1)
