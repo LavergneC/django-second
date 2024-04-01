@@ -24,6 +24,16 @@ class FunctionalTest(StaticLiveServerTestCase):
         body = self.browser.find_element(By.TAG_NAME, "body").text
         return text in body
 
+    def one_text_in_body(self, texts: list) -> tuple[bool, str]:
+        """
+        returns true if one of the provided text is in the body
+        returns the matching str
+        """
+        for text in texts:
+            if self.text_in_body(text):
+                return True, text
+        return False, ""
+
     def wait_page(self, page_title: str):
         timeout = 0
 
