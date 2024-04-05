@@ -17,3 +17,13 @@ class Card(models.Model):
         on_delete=models.CASCADE,
     )
     creation_date = models.DateField(default=timezone.now)
+
+    @property
+    def knowledge_score(self):
+        score = 1
+        delta_t = timedelta(days=1)
+        while delta_t < self.revision_time_delta and score < 10:
+            score += 1
+            delta_t *= 2
+
+        return score
