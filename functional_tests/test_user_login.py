@@ -1,4 +1,3 @@
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from flash_cards.cards.models import Card
@@ -26,18 +25,9 @@ class TestUserLogin(FunctionalTest):
         self.assertTrue(self.wait_page("Maison"))
 
         # Since he's not conencted yet, he can't create a new card
-        try:
-            self.browser.find_element(By.ID, "create_page_button_id").click()
-            self.fail("Should NOT find create button before login")
-        except NoSuchElementException:
-            pass
-
-        # Since he's not conencted yet, he can't revise
-        try:
-            self.browser.find_element(By.ID, "revision_button_id").click()
-            self.fail("Should NOT find revision button before login")
-        except NoSuchElementException:
-            pass
+        self.check_element_absence("create_page_button_id")
+        self.check_element_absence("revision_button_id")
+        self.check_element_absence("card_list_button_id")
 
         # he clicks the Sign In button
         self.browser.find_element(By.ID, "log-in-link").click()
@@ -50,9 +40,7 @@ class TestUserLogin(FunctionalTest):
         # he's redirected to the main page
         self.assertTrue(self.wait_page("Maison"))
 
-        # The buttons are now in tha pages
-        try:
-            self.browser.find_element(By.ID, "create_page_button_id")
-            self.browser.find_element(By.ID, "revision_button_id")
-        except NoSuchElementException:
-            self.fail("create_page_button_id or revision_button_id not present in the page after login")
+        # The buttons are now in the page
+        self.check_element_presence("create_page_button_id")
+        self.check_element_presence("revision_button_id")
+        self.check_element_presence("card_list_button_id")
