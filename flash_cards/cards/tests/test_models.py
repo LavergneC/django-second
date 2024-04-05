@@ -21,3 +21,4 @@ class TestCardModel(TestCase):
         self.assertEqual(Card.objects.first().revision_date, date.today())
         self.assertEqual(Card.objects.first().revision_time_delta, timedelta(days=1))
         self.assertEqual(Card.objects.first().user, user)
+        self.assertEqual(Card.objects.first().creation_date, date.today())

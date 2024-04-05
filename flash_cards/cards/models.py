@@ -16,3 +16,4 @@ class Card(models.Model):
         User,
         on_delete=models.CASCADE,
     )
+    creation_date = models.DateField(default=timezone.now)
