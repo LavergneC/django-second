@@ -19,6 +19,7 @@ class TestUserCardCollection(FunctionalTest):
             question="Quelle est la capitale de la Lettonie ?",
             answer="Riga",
             revision_date=now() + timedelta(days=8),
+            revision_time_delta=timedelta(days=256),
             user=self.user,
             creation_date=date(day=1, month=5, year=2020),
         )
@@ -26,6 +27,7 @@ class TestUserCardCollection(FunctionalTest):
             question="Quelle est la capitale de la France ?",
             answer="Paris",
             revision_date=now() + timedelta(weeks=24),
+            revision_time_delta=timedelta(days=1),
             user=self.user,
             creation_date=date(day=1, month=5, year=2022),
         )
@@ -73,3 +75,10 @@ class TestUserCardCollection(FunctionalTest):
         revision_date_str = self.card_2.revision_date.strftime("%d/%m/%Y")
         next_revision_date_text = card2_element.find_element(By.ID, "id_revision_date_field_card2").text
         self.assertEqual(next_revision_date_text, "Prochaine révision : " + revision_date_str)
+
+        # Each card displays a score based on the revision delta
+        creation_date_text = card1_element.find_element(By.ID, "id_score_field_card1").text
+        self.assertEqual(creation_date_text, "Maîtrise : 9/10")
+
+        creation_date_text = card2_element.find_element(By.ID, "id_score_field_card2").text
+        self.assertEqual(creation_date_text, "Maîtrise : 1/10")

@@ -6,6 +6,7 @@
 {% block content %}
   <h4 id="question_text_id">{{ card.question }}</h4>
   <h4 id="answer_text_id">{{ card.answer }}</h4>
+  <h6>Maîtrise : {{ card.knowledge_score }}/10</h6>
   {% if have_next_card %}
     <a href="{% url 'cards:revision' %}">
       <button id="next_revision_button_id" class="btn btn-primary">Carte suivante</button>

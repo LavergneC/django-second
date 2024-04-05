@@ -88,9 +88,10 @@ class TestCardsRevision(FunctionalTest):
         self.assertEqual(answer, "Vitellius")
         self.assertTrue(self.text_in_body("Congratulation !"))
 
-        # He also gets the next revision date
+        # He also gets the next revision date and the card knowledge score
         date_str = self.get_date_string(date.today() + timedelta(days=2))
         self.assertTrue(self.text_in_body(date_str))
+        self.assertTrue(self.text_in_body("Maîtrise : 2/10"))
 
         # He clicks the next button
         self.browser.find_element(By.ID, "next_revision_button_id").click()
@@ -117,9 +118,10 @@ class TestCardsRevision(FunctionalTest):
         self.assertEqual(answer, "Rome")
         self.assertTrue(self.text_in_body("You will do better next time!"))
 
-        # He also gets the next revision date
+        # He also gets the next revision date and the card knowledge score
         date_str = self.get_date_string(date.today() + timedelta(days=1))
         self.assertTrue(self.text_in_body(date_str))
+        self.assertTrue(self.text_in_body("Maîtrise : 1/10"))
 
         # Since he revised all today's cards, the next button is not available
         # and a message tells him
