@@ -54,6 +54,9 @@ class TestUserCardCollection(FunctionalTest):
         question = card2_element.find_element(By.ID, "id_question_field_card2").text
         self.assertEqual(question, "Quelle est la capitale de la France ?")
 
+        # check that he doesn't get other users cards
+        self.check_element_absence("id_creation_date_field_card3")
+
         # Each card displays it's creation and revision dates
         creation_date_str = self.card_1.creation_date.strftime("%d/%m/%Y")
         creation_date_text = card1_element.find_element(By.ID, "id_creation_date_field_card1").text
