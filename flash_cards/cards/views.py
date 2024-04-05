@@ -65,7 +65,7 @@ def correction_card_view(request: HttpRequest, pk):
 
     if card.answer == request.POST["answer"]:
         messages.success(request, "Congratulation !")
-        card.revision_time_delta = card.revision_time_delta * 2
+        card.revision_time_delta = min(card.revision_time_delta * 2, timedelta(days=30))
     else:
         messages.error(request, "You will do better next time!")
         card.revision_time_delta = timedelta(days=1)
