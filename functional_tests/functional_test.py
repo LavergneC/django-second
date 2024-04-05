@@ -3,6 +3,7 @@ import time
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import Client
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options as Firefox_Options
 from selenium.webdriver.firefox.service import Service
@@ -59,3 +60,16 @@ class FunctionalTest(StaticLiveServerTestCase):
                 "path": "/",
             }
         )
+
+    def check_element_absence(self, element_id: str):
+        try:
+            self.browser.find_element(By.ID, element_id)
+            self.fail(f"Should NOT find {element_id}")
+        except NoSuchElementException:
+            pass
+
+    def check_element_presence(self, element_id: str):
+        try:
+            self.browser.find_element(By.ID, element_id)
+        except NoSuchElementException:
+            self.fail(f"Should find {element_id}")
