@@ -289,3 +289,33 @@ class TestRevisionCardCorrection(TestCase):
             data={"answer": answer},
         )
         return response
+
+
+class TestUserCardCollection(TestCase):
+    def setUp(self):
+        self.url = reverse("cards:card_collection")
+        """    user1 = UserFactory(password="coucou")
+        self.client.login(email=user1.email, password="coucou")
+
+
+        self.card = Card.objects.create(
+            question="Quelle est la capitale de la France ?",
+            answer="Paris",
+            revision_date=date.today(),
+            user=user1,
+        )
+        self.card2 = Card.objects.create(
+            question="Quelle est la capitale de la France ?",
+            answer="Paris",
+            revision_date=date.today(),
+            user=user1,
+        )
+    """
+
+    def test_access_card_collection_view(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_use_revision_card_template(self):
+        response = self.client.get(self.url)
+        self.assertTemplateUsed(response, "cards/user_card_colleciton.html")

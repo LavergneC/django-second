@@ -86,3 +86,10 @@ def correction_card_view(request: HttpRequest, pk):
             "have_next_card": have_next_card,
         },
     )
+
+
+def card_collection_view(request: HttpRequest):
+    return render(
+        request,
+        "cards/user_card_colleciton.html",
+    )
