@@ -89,7 +89,9 @@ def correction_card_view(request: HttpRequest, pk):
 
 
 def card_collection_view(request: HttpRequest):
+    cards = Card.objects.filter(user=request.user).order_by("creation_date")
     return render(
         request,
-        "cards/user_card_colleciton.html",
+        "cards/user_card_collection.html",
+        context={"cards": cards},
     )

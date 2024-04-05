@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Ma collection
+{% endblock title %}
+{% block content %}
+  {% for card in cards %}
+    <div id="id_card{{ forloop.counter }}" class="card">
+      <h4 id="id_question_field_card{{ forloop.counter }}">{{ card.question }}</h4>
+      <p id="id_creation_date_field_card{{ forloop.counter }}">Création : {{ card.creation_date|date:"d/m/Y" }}</p>
+      <p id="id_revision_date_field_card{{ forloop.counter }}">
+        Prochaine révision : {{ card.revision_date|date:"d/m/Y" }}
+      </p>
+    </div>
+  {% endfor %}
+{% endblock content %}
+{% block styles %}
+  <style>
+    .card {
+      width: 200px;
+      height: 100px;
+      border: 2px solid #000;
+      border-radius: 10px;
+      margin: 10px;
+      padding: 10px;
+      display: inline-block;
+    }
+  </style>
+{% endblock styles %}

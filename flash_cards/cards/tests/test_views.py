@@ -293,29 +293,52 @@ class TestRevisionCardCorrection(TestCase):
 
 class TestUserCardCollection(TestCase):
     def setUp(self):
-        self.url = reverse("cards:card_collection")
-        """    user1 = UserFactory(password="coucou")
-        self.client.login(email=user1.email, password="coucou")
-
+        user1 = UserFactory(password="coucou")
+        user2 = UserFactory()
 
         self.card = Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
             revision_date=date.today(),
             user=user1,
+            creation_date=date.today() - timedelta(days=5),
         )
-        self.card2 = Card.objects.create(
-            question="Quelle est la capitale de la France ?",
-            answer="Paris",
+        self.card1 = Card.objects.create(
+            question="Quelle est la capitale de la Chine ?",
+            answer="Pékin",
             revision_date=date.today(),
             user=user1,
+            creation_date=date.today(),
         )
-    """
+        Card.objects.create(
+            question="Le foot c'est bien ?",
+            answer="Oui",
+            revision_date=date.today(),
+            user=user2,
+            creation_date=date.today(),
+        )
+
+        self.client.login(email=user1.email, password="coucou")
+        self.url = reverse("cards:card_collection")
+        self.response = self.client.get(self.url)
 
     def test_access_card_collection_view(self):
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.response.status_code, 200)
 
-    def test_use_revision_card_template(self):
-        response = self.client.get(self.url)
-        self.assertTemplateUsed(response, "cards/user_card_colleciton.html")
+    def test_use_card_collection_template(self):
+        self.assertTemplateUsed(self.response, "cards/user_card_collection.html")
+
+    def test_cards_are_passed_to_context_in_correct_order(self):
+        cards = self.response.context["cards"]
+        self.assertEqual(len(cards), 2)
+
+        self.assertEqual(cards.first().pk, self.card.pk)
+        self.assertEqual(cards.last().pk, self.card1.pk)
+
+        self.card1.creation_date = date.today() - timedelta(days=10)
+        self.card1.save()
+
+        second_request = self.client.get(self.url)
+        cards = second_request.context["cards"]
+        self.assertEqual(cards.first().pk, self.card1.pk)
+        self.assertEqual(cards.last().pk, self.card.pk)
