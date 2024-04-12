@@ -29,8 +29,8 @@ class TestCardModel(TestCase):
 
         # function_dict: days -> score/10
         function_dict = {1: 2, 2: 3, 4: 4, 8: 6, 16: 8, 30: 10, 32: 10, 100: 10}
-        for key in function_dict:
-            card.revision_time_delta = timedelta(days=key)
+        for nb_days, expected_score in function_dict.items():
+            card.revision_time_delta = timedelta(days=nb_days)
             card.save()
 
-            self.assertEqual(Card.objects.first().knowledge_score, function_dict[key])
+            self.assertEqual(Card.objects.first().knowledge_score, expected_score)
