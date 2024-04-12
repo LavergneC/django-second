@@ -1,5 +1,5 @@
-from cmath import sqrt
 from datetime import timedelta
+from math import sqrt
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -21,4 +21,4 @@ class Card(models.Model):
 
     @property
     def knowledge_score(self):
-        return min(10, round(2 * sqrt(self.revision_time_delta.days).real))
+        return min(10, round(2 * sqrt(self.revision_time_delta.days)))
