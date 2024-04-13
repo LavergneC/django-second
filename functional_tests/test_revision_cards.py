@@ -76,7 +76,7 @@ class TestCardsRevision(FunctionalTest):
         self.assertTrue(self.text_in_body("Qui fût le 9ème César ?"))
 
         # He answer correctly
-        form.find_element(By.ID, "id_answer").send_keys("Vitellius")
+        form.find_element(By.ID, "id_answer").send_keys("vitellius .")
         # he clicks on the "check answer" button
         self.browser.find_element(By.ID, "check_answer_id").click()
 

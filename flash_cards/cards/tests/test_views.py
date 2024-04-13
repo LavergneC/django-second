@@ -241,6 +241,11 @@ class TestRevisionCardCorrection(TestCase):
         messages_received = [m.message for m in messages.get_messages(post_response.wsgi_request)]
         self.assertEqual(messages_received, ["You will do better next time!"])
 
+    def test_user_answer_has_minor_mistakes(self):
+        self.response2 = self._post("paris. ")
+        messages_received = [m.message for m in messages.get_messages(self.response2.wsgi_request)]
+        self.assertEqual(messages_received, ["Congratulation !"])
+
     def test_correction_display_correct_card(self):
         self.assertIn(self.card.question, self.response.content.decode())
         self.assertIn(self.card.answer, self.response.content.decode())

@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from flash_cards.cards.forms import NewCardForm, RevisionForm
 from flash_cards.cards.models import Card
-from flash_cards.cards.utils import get_revisable_cards
+from flash_cards.cards.utils import check_answer, get_revisable_cards
 
 
 def new_card_view(request: HttpRequest) -> HttpResponse:
@@ -63,7 +63,7 @@ def correction_card_view(request: HttpRequest, pk):
 
     card = Card.objects.get(id=pk)
 
-    if card.answer == request.POST["answer"]:
+    if check_answer(card.answer, request.POST["answer"]):
         messages.success(request, "Congratulation !")
         card.revision_time_delta = card.revision_time_delta * 2
     else:
