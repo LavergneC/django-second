@@ -270,10 +270,20 @@ class TestRevisionCardCorrection(TestCase):
 
     def test_right_answer_updates_card_revision_date_and_time_delta(self):
         # succeded card new revison date:
-        # timedelta = timedelta * 2
+        # timedelta = min(timedelta * 2, 30)
         # revision_date = today_date + (new)timedelta
         card = self.response.context["card"]
         self.assertEqual(card.revision_time_delta, timedelta(days=2))
+        self.assertEqual(card.revision_date, date.today() + card.revision_time_delta)
+
+        # 6 correct anwser in a row
+        post_count = 0
+        while post_count < 6:
+            self.response = self._post("Paris")
+            post_count += 1
+
+        card = self.response.context["card"]
+        self.assertEqual(card.revision_time_delta, timedelta(days=30))
         self.assertEqual(card.revision_date, date.today() + card.revision_time_delta)
 
     def test_wrong_answer_updates_card_revision_date_and_time_delta(self):

@@ -19,7 +19,7 @@ class TestUserCardCollection(FunctionalTest):
             question="Quelle est la capitale de la Lettonie ?",
             answer="Riga",
             revision_date=now() + timedelta(days=8),
-            revision_time_delta=timedelta(days=16),
+            revision_time_delta=timedelta(days=256),
             user=self.user,
             creation_date=date(day=1, month=5, year=2020),
         )
@@ -78,7 +78,8 @@ class TestUserCardCollection(FunctionalTest):
 
         # Each card displays a score based on the revision delta
         creation_date_text = card1_element.find_element(By.ID, "id_score_field_card1").text
-        self.assertEqual(creation_date_text, "Maîtrise : 8/10")
+
+        self.assertEqual(creation_date_text, "Maîtrise : 10/10")
 
         creation_date_text = card2_element.find_element(By.ID, "id_score_field_card2").text
         self.assertEqual(creation_date_text, "Maîtrise : 2/10")
