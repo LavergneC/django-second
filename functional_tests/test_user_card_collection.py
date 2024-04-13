@@ -20,7 +20,6 @@ class TestUserCardCollection(FunctionalTest):
             answer="Riga",
             revision_date=now() + timedelta(days=8),
             revision_time_delta=timedelta(days=256),
-
             user=self.user,
             creation_date=date(day=1, month=5, year=2020),
         )
