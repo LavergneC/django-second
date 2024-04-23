@@ -39,6 +39,12 @@ class UserSignupForm(SignupForm):
 
     name = forms.CharField(label="Username", max_length=100)
 
+    def save(self, request):
+        user = super().save(request)
+        user.name = self.cleaned_data.get("name")
+        user.save()
+        return user
+
 
 class UserSocialSignupForm(SocialSignupForm):
     """

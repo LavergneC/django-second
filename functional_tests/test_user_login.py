@@ -82,4 +82,7 @@ class TestUserLogin(FunctionalTest):
 
         # He then checks his informations by clicking "My Profile"
         self.browser.find_element(By.XPATH, '//a[@class="nav-link" and @href="/users/2/"]').click()
+
+        # his name apears in both the page title and content
         self.assertTrue(self.wait_page("User: " + new_user_name))
+        self.assertTrue(self.text_in_body(new_user_name))

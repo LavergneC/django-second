@@ -2,6 +2,8 @@
 Module for all Form Tests.
 """
 
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.utils.translation import gettext_lazy as _
@@ -47,18 +49,22 @@ class TestCreateAccountForm(TestCase):
         self.assertIn('id="id_password1"', form.as_p())
         self.assertIn('id="id_password2"', form.as_p())
 
-    def test_save_email_and_name(self):
+    @patch("allauth.account.adapter.DefaultAccountAdapter.unstash_verified_email")
+    def test_save_email_and_name(self, mock_unstash_verified_email):
         fake_request = RequestFactory()
 
+        email = "dupont@example.fr"
         form = UserSignupForm(
             data={
-                "email": "dupont@example.fr",
+                "email": email,
                 "name": "jean dupont",
                 "password1": "passPass",
                 "password2": "passPass",
             }
         )
         form.full_clean()
+
+        mock_unstash_verified_email.return_value = email
         user = form.save(fake_request)
-        self.assertEqual(user.email, "dupont@example.fr")
+        self.assertEqual(user.email, email)
         self.assertEqual(user.name, "jean dupont")
