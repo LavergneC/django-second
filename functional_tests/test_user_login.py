@@ -81,7 +81,7 @@ class TestUserLogin(FunctionalTest):
         self.check_element_presence("card_list_button_id")
 
         # He then checks his informations by clicking "My Profile"
-        self.browser.find_element(By.XPATH, '//a[@class="nav-link" and @href="/users/2/"]').click()
+        self.browser.find_element(By.XPATH, '//a[@class="nav-link" and contains(@href, "/users/")]').click()
 
         # his name apears in both the page title and content
         self.assertTrue(self.wait_page("User: " + new_user_name))
