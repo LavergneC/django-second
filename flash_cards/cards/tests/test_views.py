@@ -357,3 +357,45 @@ class TestUserCardCollection(TestCase):
         cards = second_request.context["cards"]
         self.assertEqual(cards.first().pk, self.card1.pk)
         self.assertEqual(cards.last().pk, self.card.pk)
+
+
+class TestLeaderBoardView(TestCase):
+    def setUp(self):
+        self.best_user = UserFactory()
+        self.worst_user = UserFactory()
+
+        self.card = Card.objects.create(
+            question="Quelle est la capitale de la France ?",
+            answer="Paris",
+            revision_time_delta=timedelta(days=16),  # 8 points
+            user=self.best_user,
+        )
+        self.card1 = Card.objects.create(
+            question="Quelle est la capitale de la Chine ?",
+            answer="Pékin",
+            revision_time_delta=timedelta(days=2),  # 2 points
+            user=self.worst_user,
+        )
+        Card.objects.create(
+            question="Le foot c'est bien ?",
+            answer="Oui",
+            revision_time_delta=timedelta(days=8),  # +5 points
+            user=self.best_user,
+        )
+
+        self.url = reverse("cards:leaderboard")
+        self.response = self.client.get(self.url)
+
+    def test_access_leader_board_view(self):
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_use_leader_board_template(self):
+        self.assertTemplateUsed(self.response, "cards/leader_board.html")
+
+    def test_leader_board_in_context(self):
+        expected_leader_board = (
+            (self.best_user.name, self.best_user.leader_board_score),
+            (self.worst_user.name, self.worst_user.leader_board_score),
+        )
+        leader_board = self.response.context["leader_board"]
+        self.assertEqual(leader_board, expected_leader_board)

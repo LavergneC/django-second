@@ -95,3 +95,10 @@ def card_collection_view(request: HttpRequest):
         "cards/user_card_collection.html",
         context={"cards": cards},
     )
+
+
+def leaderboard_view(request: HttpRequest):
+    return render(
+        request,
+        "cards/leader_board.html",
+    )
