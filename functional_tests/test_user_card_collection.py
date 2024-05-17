@@ -82,4 +82,4 @@ class TestUserCardCollection(FunctionalTest):
         self.assertEqual(creation_date_text, "Maîtrise : 10/10")
 
         creation_date_text = card2_element.find_element(By.ID, "id_score_field_card2").text
-        self.assertEqual(creation_date_text, "Maîtrise : 2/10")
+        self.assertEqual(creation_date_text, "Maîtrise : 0/10")

@@ -33,3 +33,7 @@ class User(AbstractUser):
 
         """
         return reverse("users:detail", kwargs={"pk": self.id})
+
+    @property
+    def leaderboard_score(self):
+        return sum([card.knowledge_score for card in self.cards.all()])

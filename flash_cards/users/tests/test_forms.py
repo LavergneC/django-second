@@ -1,9 +1,14 @@
 """
 Module for all Form Tests.
 """
+
+from unittest.mock import patch
+
+from django.test import TestCase
+from django.test.client import RequestFactory
 from django.utils.translation import gettext_lazy as _
 
-from flash_cards.users.forms import UserAdminCreationForm
+from flash_cards.users.forms import UserAdminCreationForm, UserSignupForm
 from flash_cards.users.models import User
 
 
@@ -34,3 +39,32 @@ class TestUserAdminCreationForm:
         assert len(form.errors) == 1
         assert "email" in form.errors
         assert form.errors["email"][0] == _("This email has already been taken.")
+
+
+class TestCreateAccountForm(TestCase):
+    def test_display_fields(self):
+        form = UserSignupForm()
+        self.assertIn('id="id_email"', form.as_p())
+        self.assertIn('id="id_name"', form.as_p())
+        self.assertIn('id="id_password1"', form.as_p())
+        self.assertIn('id="id_password2"', form.as_p())
+
+    @patch("allauth.account.adapter.DefaultAccountAdapter.unstash_verified_email")
+    def test_save_email_and_name(self, mock_unstash_verified_email):
+        fake_request = RequestFactory()
+
+        email = "dupont@example.fr"
+        form = UserSignupForm(
+            data={
+                "email": email,
+                "name": "jean dupont",
+                "password1": "passPass",
+                "password2": "passPass",
+            }
+        )
+        form.full_clean()
+
+        mock_unstash_verified_email.return_value = email
+        user = form.save(fake_request)
+        self.assertEqual(user.email, email)
+        self.assertEqual(user.name, "jean dupont")

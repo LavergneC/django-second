@@ -16,9 +16,13 @@ class Card(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name="cards",
     )
     creation_date = models.DateField(default=timezone.now)
 
     @property
     def knowledge_score(self):
-        return min(10, round(2 * sqrt(self.revision_time_delta.days)))
+        if self.revision_time_delta.days < 1:
+            return 0
+
+        return min(10, round(2 * sqrt(self.revision_time_delta.days - 1)))

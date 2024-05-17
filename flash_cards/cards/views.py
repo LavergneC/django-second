@@ -7,7 +7,8 @@ from django.urls import reverse
 
 from flash_cards.cards.forms import NewCardForm, RevisionForm
 from flash_cards.cards.models import Card
-from flash_cards.cards.utils import check_answer, get_revisable_cards
+from flash_cards.cards.utils import check_answer, get_revisable_cards, sorted_leaderboard
+from flash_cards.users.models import User
 
 
 def new_card_view(request: HttpRequest) -> HttpResponse:
@@ -94,4 +95,18 @@ def card_collection_view(request: HttpRequest):
         request,
         "cards/user_card_collection.html",
         context={"cards": cards},
+    )
+
+
+def leaderboard_view(request: HttpRequest):
+    leaderboard = {}
+    for user in User.objects.all():
+        leaderboard[user.name] = user.leaderboard_score
+
+    leaderboard = sorted_leaderboard(leaderboard)
+
+    return render(
+        request,
+        "cards/leaderboard.html",
+        context={"leaderboard": leaderboard},
     )

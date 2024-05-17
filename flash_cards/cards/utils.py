@@ -22,3 +22,11 @@ def check_answer(real_answer: str, user_answer) -> bool:
     user_answer = re.sub(r"[^\w\s]", "", user_answer)
 
     return real_answer == user_answer
+
+
+def sorted_leaderboard(leaderboard: dict) -> dict:
+    sorted_items = sorted(
+        leaderboard.items(),
+        key=lambda item: item[1],
+    )
+    return dict(reversed(sorted_items))
