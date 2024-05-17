@@ -16,6 +16,7 @@ class Card(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name="cards",
     )
     creation_date = models.DateField(default=timezone.now)
 
