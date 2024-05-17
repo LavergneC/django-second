@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}
+  LeaderBoard
+{% endblock title %}
+{% block content %}
+  <table id="leaderboard_table_id">
+    <tr>
+      <td>Names</td>
+      <td>Scores</td>
+    </tr>
+    {% for name, score in leaderboard.items %}
+      <tr>
+        <td>{{ name }}</td>
+        <td>{{ score }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock content %}

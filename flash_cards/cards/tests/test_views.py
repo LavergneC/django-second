@@ -363,7 +363,14 @@ class TestLeaderBoardView(TestCase):
     def setUp(self):
         self.best_user = UserFactory()
         self.worst_user = UserFactory()
+        self.median_user = UserFactory()
 
+        Card.objects.create(
+            question="Quel est le numéro atommique de l'hydrogène",
+            answer="1",
+            revision_time_delta=timedelta(days=8),  # 5 points
+            user=self.median_user,
+        )
         self.card = Card.objects.create(
             question="Quelle est la capitale de la France ?",
             answer="Paris",
@@ -386,16 +393,18 @@ class TestLeaderBoardView(TestCase):
         self.url = reverse("cards:leaderboard")
         self.response = self.client.get(self.url)
 
-    def test_access_leader_board_view(self):
+    def test_access_leaderboard_view(self):
         self.assertEqual(self.response.status_code, 200)
 
-    def test_use_leader_board_template(self):
-        self.assertTemplateUsed(self.response, "cards/leader_board.html")
+    def test_use_leaderboard_template(self):
+        self.assertTemplateUsed(self.response, "cards/leaderboard.html")
 
-    def test_leader_board_in_context(self):
-        expected_leader_board = (
-            (self.best_user.name, self.best_user.leader_board_score),
-            (self.worst_user.name, self.worst_user.leader_board_score),
-        )
-        leader_board = self.response.context["leader_board"]
-        self.assertEqual(leader_board, expected_leader_board)
+    def test_leaderboard_in_context(self):
+        expected_leaderboard = {
+            self.best_user.name: 8 + 5,
+            self.median_user.name: 5,
+            self.worst_user.name: 2,
+        }
+
+        leaderboard = self.response.context["leaderboard"]
+        self.assertEqual(leaderboard, expected_leaderboard)
