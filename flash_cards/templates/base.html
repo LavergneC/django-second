@@ -64,7 +64,9 @@
                 <a class="nav-link" href="{% url 'about' %}">About</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'cards:leaderboard' %}">LeaderBoard</a>
+                <a class="nav-link"
+                   href="{% url 'cards:leaderboard' %}"
+                   id="leaderboard-link">LeaderBoard</a>
               </li>
               {% if request.user.is_authenticated %}
                 <li class="nav-item">
